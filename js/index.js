@@ -49,15 +49,20 @@ function drawSpriteSheetImage(context, locRect, x, y){
 
 var canvas, context, gameState, score, groundX = 0, birdY, birdYSpeed, birdX = 5, birdFrame = 0, activeTube, tubes = [], collisionContext, scale, scoreLoc = {width:5, height:9}, hiScore = 0;
 var HOME = 0, GAME = 1, GAME_OVER = 2, HI_SCORE = 3;
+var isAutoPlay = false;
+var humanHighScore = 0;
+var aiHighScore = 0;
+var humanTrials = 0;
 
 function initGame(){
     canvas = document.getElementById("gameCanvas");
+    var contentPanel = document.getElementById("content");
     context = canvas.getContext("2d");
     scale = 12;
-    canvas.width = scale * 32;
-    canvas.height = scale * 32;
-    canvas.style.left = window.innerWidth / 2 - (scale * 32) / 2 + "px";
-    canvas.style.top = window.innerHeight / 2 - (scale * 32) / 2 + "px";
+    updateCanvasLayout(contentPanel);
+    window.addEventListener("resize", function() {
+        updateCanvasLayout(contentPanel);
+    }, false);
     window.addEventListener( "keydown", handleUserInteraction, false );
     canvas.addEventListener('touchstart', handleUserInteraction, false);
     canvas.addEventListener('mousedown', handleUserInteraction, false);
@@ -66,6 +71,13 @@ function initGame(){
     collisionContext = collisionCanvas.getContext("2d");
     collisionContext.globalCompositeOperation = "xor";
     startGame();
+    if (isAutoPlay) {
+        gameState = GAME;
+    }
+    if (typeof syncModeControls === "function") {
+        syncModeControls();
+    }
+    updateDashboard();
     // Set the speed of the game
     eventLoop = setInterval(loop, 40);
 }
@@ -86,14 +98,18 @@ function loop(){
             renderHome();
             break;
         case GAME : 
-            nextStep();
+            if (isAutoPlay) {
+                nextStep();
+            }
             renderGame();
             break;
         case GAME_OVER: 
             renderGameOver();
-            // We'll keep looping over the game to train our flappy bird
-            startGame();
-            gameState = GAME
+            if (isAutoPlay) {
+                // In training mode we'll keep looping over the game
+                startGame();
+                gameState = GAME;
+            }
             break;
         case HI_SCORE : 
             renderHiScore();
@@ -104,13 +120,27 @@ function loop(){
 
 function handleUserInteraction(event){
     switch(gameState){
-        case HOME: gameState = GAME;
+        case HOME:
+            gameState = GAME;
+            if (!isAutoPlay) {
+                humanTrials++;
+            }
             break;
-        case GAME : birdYSpeed = -1.4;
+        case GAME:
+            birdYSpeed = -1.4;
             break;
-        case HI_SCORE: startGame();
+        case GAME_OVER:
+            startGame();
+            gameState = GAME;
+            if (!isAutoPlay) {
+                humanTrials++;
+            }
+            break;
+        case HI_SCORE:
+            startGame();
             break;
     }
+    updateDashboard();
     if(event){
         event.preventDefault();
     }
@@ -134,8 +164,11 @@ function renderGame(){
     updateBirdGame();
     checkCollision();
     if (displayTarget) {
-        renderContext.fillStyle = "#F00";
-        renderContext.fillRect(targetTube.x + 3, (targetTube.y+17+6), 1, 1);
+        var targetMarkerTube = tubes[activeTube];
+        if (!targetMarkerTube.targetReached) {
+            renderContext.fillStyle = "#F00";
+            renderContext.fillRect(targetMarkerTube.x + 3, (targetMarkerTube.y + 17 + 6), 1, 1);
+        }
     }
     drawSpriteSheetImage(renderContext, bgLoc, 0, 0);
     renderToScale();
@@ -179,7 +212,15 @@ function checkCollision(){
             if(score > hiScore){
                 hiScore = score + 0;
             }
-            triggerGameOver();
+            if (isAutoPlay) {
+                aiHighScore = Math.max(aiHighScore, score);
+            } else {
+                humanHighScore = Math.max(humanHighScore, score);
+            }
+            if (isAutoPlay) {
+                triggerGameOver();
+            }
+            updateDashboard();
             break;
         }
     }
@@ -194,10 +235,7 @@ function renderScore(score, xFunction, y){
         scoreLoc.y = scoreLocs[index + 1];
         drawSpriteSheetImage(renderContext, scoreLoc, xFunction(i, length), y);
     }
-    var curMaxScore = Math.max(parseInt(document.getElementById("score").innerText), parseInt(score));
-    document.getElementById("score").innerText = curMaxScore.toString();
-    document.getElementById("rules").innerText = Object.keys(Q_table).length;
-    document.getElementById("trials").innerText = trials;
+    updateDashboard();
 }
 
 function renderScoreXGame(index, total){
@@ -243,6 +281,7 @@ function updateBirdGame(){
     collisionContext.restore();
     birdFrame++;
     birdFrame %= 3;
+    markTargetReached();
 }
 
 function renderTubes(){
@@ -265,5 +304,55 @@ function setTubeY(tube){
         tube.y = Math.floor(0.639 * (bgLoc.height - tubeLoc.height));
     } else {
         tube.y = Math.floor(Math.random() * (bgLoc.height - tubeLoc.height + 2));
+    }
+    tube.targetReached = false;
+}
+
+function markTargetReached() {
+    var targetMarkerTube = tubes[activeTube];
+    if (!targetMarkerTube || targetMarkerTube.targetReached) {
+        return;
+    }
+    var targetX = targetMarkerTube.x + 3;
+    var targetY = targetMarkerTube.y + 17 + 6;
+    var birdCenterX = birdX + 2;
+    var birdCenterY = birdY + 1;
+
+    if (Math.abs(birdCenterX - targetX) <= 1 && Math.abs(birdCenterY - targetY) <= 1) {
+        targetMarkerTube.targetReached = true;
+    }
+}
+
+function updateCanvasLayout(contentPanel) {
+    var panelWidth = contentPanel ? contentPanel.getBoundingClientRect().width : window.innerWidth;
+    var maxScaleByWidth = Math.floor((panelWidth - 4) / 32);
+    scale = Math.max(8, maxScaleByWidth);
+    canvas.width = scale * 32;
+    canvas.height = scale * 32;
+}
+
+function updateDashboard() {
+    var humanScoreElement = document.getElementById("human-score");
+    var aiScoreElement = document.getElementById("ai-score");
+    var humanTrialsElement = document.getElementById("human-trials");
+    var aiTrialsElement = document.getElementById("ai-trials");
+    var rulesElement = document.getElementById("rules");
+    var humanModeCard = document.getElementById("modeHumanCard");
+    var aiModeCard = document.getElementById("modeQLearningCard");
+
+    if (humanScoreElement) humanScoreElement.innerText = humanHighScore.toString();
+    if (aiScoreElement) aiScoreElement.innerText = aiHighScore.toString();
+    if (humanTrialsElement) humanTrialsElement.innerText = humanTrials.toString();
+    if (aiTrialsElement) aiTrialsElement.innerText = trials.toString();
+    if (rulesElement) rulesElement.innerText = Object.keys(Q_table).length.toString();
+
+    if (humanModeCard && aiModeCard) {
+        if (isAutoPlay) {
+            aiModeCard.classList.add("active");
+            humanModeCard.classList.remove("active");
+        } else {
+            humanModeCard.classList.add("active");
+            aiModeCard.classList.remove("active");
+        }
     }
 }

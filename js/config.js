@@ -6,10 +6,22 @@
 
 var isEnvironmentStatic = true;
 var displayTarget = false;
+var HUMAN_MODE_SPEED = 40;
+
+function applyGameSpeed(speedValue) {
+    clearInterval(eventLoop);
+    eventLoop = setInterval(loop, 100 - speedValue);
+}
 
 function gameSpeedChange(curSpeed) {
-    clearInterval(eventLoop);
-    eventLoop = setInterval(loop, 100-curSpeed);
+    if (!isAutoPlay) {
+        var humanSpeedSlider = document.getElementById("tel1");
+        if (humanSpeedSlider) {
+            humanSpeedSlider.value = HUMAN_MODE_SPEED;
+        }
+        return;
+    }
+    applyGameSpeed(parseInt(curSpeed, 10));
 }
 
 function toggleDisplayTarget(showTarget) {
@@ -68,4 +80,35 @@ function loadPreModel() {
     }, function(status) {
     alert("Failure in loading pre-trained model");
     });
+}
+
+function playerModeChange(mode) {
+    isAutoPlay = (mode == "QLearning");
+    frameBuffer = [];
+    episodeFrameCount = 0;
+    targetTubeIndex = -1;
+    startGame();
+    if (isAutoPlay) {
+        gameState = GAME;
+    } else {
+        gameState = HOME;
+    }
+    syncModeControls();
+    updateDashboard();
+}
+
+function syncModeControls() {
+    var speedSlider = document.getElementById("tel1");
+    if (!speedSlider) {
+        return;
+    }
+
+    if (isAutoPlay) {
+        speedSlider.disabled = false;
+        applyGameSpeed(parseInt(speedSlider.value, 10));
+    } else {
+        speedSlider.value = HUMAN_MODE_SPEED;
+        speedSlider.disabled = true;
+        applyGameSpeed(HUMAN_MODE_SPEED);
+    }
 }
