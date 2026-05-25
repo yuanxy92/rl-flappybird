@@ -115,13 +115,13 @@
               </div>
             </div>
           <div class="field-group">
-            <label for="viz-speed-y" class="label">Viz speedY (v*100)</label>
+            <label for="viz-speed-y" class="label">VSpeedY</label>
             <div class="field">
-              <input id="viz-speed-y" type="range" min="-200" max="200" step="25" value="0" oninput="vizSpeedYChange(this.value)">
+              <input id="viz-speed-y" type="range" min="-10" max="10" step="1" value="0" oninput="vizSpeedYChange(this.value)">
               <span id="viz-speed-y-value" class="number">0</span>
             </div>
           </div>
-          <p class="hint">Definition: speedY = round(vy * 100), where vy is bird vertical speed in px/frame. So -140 means vy=-1.40 px/frame (up), +50 means vy=+0.50 px/frame (down).</p>
+          <p class="hint">Definition: VSpeedY = round(vy * 4), where vy is bird vertical speed in px/frame.</p>
           <div class="viz-wrap">
             <canvas id="qtable-canvas" width="300" height="180"></canvas>
             <p id="qtable-legend" class="hint">Red means Q(Jump) is higher; Blue means Q(Stay) is higher. This is value preference (Q-value gap), not probability. X=tubeX, Y=diffY.</p>

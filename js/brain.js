@@ -261,7 +261,7 @@ function nextStep() {
   // Else, we'll form our state from the current environment parameters to be
   // ingested by our algorithm
   var state = {
-    speedY: Math.round(birdYSpeed * 100),
+    speedY: Math.round(birdYSpeed * 4),
     tubeX: targetTube.x,
     diffY: (targetTube.y+17+6) - (birdY+1)
   };
