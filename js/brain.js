@@ -260,10 +260,11 @@ function nextStep() {
 
   // Else, we'll form our state from the current environment parameters to be
   // ingested by our algorithm
+  var gridSize = 2;
   var state = {
-    speedY: Math.round(birdYSpeed * 4),
-    tubeX: targetTube.x,
-    diffY: (targetTube.y+17+6) - (birdY+1)
+    speedY: Math.round(birdYSpeed * 8),
+    tubeX: Math.round(targetTube.x / gridSize) * gridSize,
+    diffY: Math.round(((targetTube.y+17+6) - (birdY+1)) / gridSize) * gridSize
   };
   
   // Query the Q-table to determine the appropriate action to be taken for the

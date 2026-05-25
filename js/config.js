@@ -255,13 +255,15 @@ function renderQTableVisualization(force) {
     if (speedLabel) {
         speedLabel.innerText = speedY.toString();
     }
-
     ctx.clearRect(0, 0, width, height);
     for (var r = 0; r < rows; r++) {
         var diffY = 20 - r;
         for (var c = 0; c < cols; c++) {
             var tubeX = c;
-            var state = { diffY: diffY, speedY: speedY, tubeX: tubeX };
+            var gridSize = 2
+            tubeX_resize = Math.round(tubeX / gridSize) * gridSize
+            diffY_resize = Math.round(diffY / gridSize) * gridSize
+            var state = { diffY: diffY_resize, speedY: speedY, tubeX: tubeX_resize };
             var qStay = getQ(state, actionSet.STAY);
             var qJump = getQ(state, actionSet.JUMP);
             var delta = qJump - qStay;
