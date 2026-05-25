@@ -51,8 +51,8 @@ var actionSet = {
  */
 var gamma = 0.8; // Discounted rewards
 var alpha = 0.1; // Learning rate
-var epsilon = 0.02; // Exploration probability
-var tieJumpProbability = 0.25; // Probability of jump when Q-values tie
+var epsilon = 0.0; // Exploration probability
+var tieJumpProbability = 0.04; // Probability of jump when Q-values tie
 
 // Frame buffer for mainting the state-action pairs in the current episode
 var frameBuffer = [];

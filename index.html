@@ -101,23 +101,24 @@
             </div>
           </div>
           <div class="field-group">
-            <label for="epsilon-range" class="label">Epsilon</label>
-            <div class="field">
-              <input id="epsilon-range" type="range" min="0" max="0.3" step="0.005" value="0.02" onchange="learningParamChange()">
-              <span id="epsilon-value" class="number">0.020</span>
+              <label for="epsilon-range" class="label">Epsilon</label>
+              <div class="field">
+                <input id="epsilon-range" type="range" min="0" max="0.3" step="0.005" value="0.00" onchange="learningParamChange()">
+                <span id="epsilon-value" class="number">0.000</span>
+              </div>
             </div>
-          </div>
-          <div class="field-group">
-            <label for="tie-jump-range" class="label">Tie Jump P</label>
-            <div class="field">
-              <input id="tie-jump-range" type="range" min="0" max="1" step="0.01" value="0.25" onchange="learningParamChange()">
-              <span id="tie-jump-value" class="number">0.25</span>
+            <div class="field-group">
+              <label for="tie-jump-range" class="label">Tie Jump P</label>
+              <div class="field">
+                <input id="tie-jump-range" type="range" min="0" max="1" step="0.01" value="0.04" onchange="learningParamChange()">
+                <span id="tie-jump-value" class="number">0.04</span>
+              </div>
             </div>
-          </div>
           <div class="field-group">
             <label for="viz-speed-y" class="label">Viz speedY (v*100)</label>
             <div class="field">
-              <input id="viz-speed-y" type="number" value="0" step="25" onchange="renderQTableVisualization()">
+              <input id="viz-speed-y" type="range" min="-200" max="200" step="25" value="0" oninput="vizSpeedYChange(this.value)">
+              <span id="viz-speed-y-value" class="number">0</span>
             </div>
           </div>
           <p class="hint">Definition: speedY = round(vy * 100), where vy is bird vertical speed in px/frame. So -140 means vy=-1.40 px/frame (up), +50 means vy=+0.50 px/frame (down).</p>

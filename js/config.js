@@ -194,6 +194,15 @@ function learningParamChange() {
     renderQTableVisualization(true);
 }
 
+function vizSpeedYChange(value) {
+    var speedValue = parseInt(value, 10);
+    var speedLabel = document.getElementById("viz-speed-y-value");
+    if (speedLabel) {
+        speedLabel.innerText = speedValue.toString();
+    }
+    renderQTableVisualization(true);
+}
+
 function syncLearningControlsFromModel() {
     var alphaRange = document.getElementById("alpha-range");
     var gammaRange = document.getElementById("gamma-range");
@@ -235,6 +244,10 @@ function renderQTableVisualization(force) {
     var cellW = plotW / cols;
     var cellH = plotH / rows;
     var speedY = parseInt(speedInput.value, 10);
+    var speedLabel = document.getElementById("viz-speed-y-value");
+    if (speedLabel) {
+        speedLabel.innerText = speedY.toString();
+    }
 
     ctx.clearRect(0, 0, width, height);
     for (var r = 0; r < rows; r++) {
