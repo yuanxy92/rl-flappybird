@@ -84,6 +84,13 @@ function environmentChange(curEnv) {
     } else {
         isEnvironmentStatic = false;
     }
+    startGame();
+    if (isAutoPlay) {
+        gameState = GAME;
+    } else {
+        gameState = HOME;
+    }
+    updateDashboard();
 }
 
 function saveModel() {

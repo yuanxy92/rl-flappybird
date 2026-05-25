@@ -49,12 +49,23 @@ function drawSpriteSheetImage(context, locRect, x, y){
 
 var canvas, context, gameState, score, groundX = 0, birdY, birdYSpeed, birdX = 5, birdFrame = 0, activeTube, tubes = [], collisionContext, scale, scoreLoc = {width:5, height:9}, hiScore = 0;
 var HOME = 0, GAME = 1, GAME_OVER = 2, HI_SCORE = 3;
+var AUTO_PLAY_STEP_PIXELS = 1;
+var autoPlayPixelAccumulator = 0;
 var isAutoPlay = false;
 var humanDifficulty = "medium";
-var humanHighScores = { easy: 0, medium: 0, hard: 0 };
-var aiHighScore = 0;
-var humanTrials = 0;
+var humanStatsByEnv = {
+    Static: { trials: 0, highScores: { easy: 0, medium: 0, hard: 0 } },
+    Random: { trials: 0, highScores: { easy: 0, medium: 0, hard: 0 } }
+};
+var aiStatsByEnv = {
+    Static: { trials: 0, highScore: 0 },
+    Random: { trials: 0, highScore: 0 }
+};
 var episodeScoreHistory = [];
+
+function currentEnvironmentKey() {
+    return isEnvironmentStatic ? "Static" : "Random";
+}
 
 function initGame(){
     canvas = document.getElementById("gameCanvas");
@@ -91,6 +102,7 @@ function startGame(){
     gameState = HOME;
     birdYSpeed = score = 0;
     birdY = 11;
+    autoPlayPixelAccumulator = 0;
     for(var i = 0; i < 2; i++){
         tubes[i] = {x : Math.round(48 + i * 19) };
         setTubeY(tubes[i]);
@@ -104,9 +116,15 @@ function loop(){
             break;
         case GAME : 
             if (isAutoPlay) {
-                nextStep();
+                autoPlayPixelAccumulator += 1;
+                if (autoPlayPixelAccumulator >= AUTO_PLAY_STEP_PIXELS) {
+                    autoPlayPixelAccumulator = 0;
+                    nextStep();
+                }
+                renderGame(true);
+            } else {
+                renderGame(true);
             }
-            renderGame();
             break;
         case GAME_OVER: 
             renderGameOver();
@@ -128,7 +146,7 @@ function handleUserInteraction(event){
         case HOME:
             gameState = GAME;
             if (!isAutoPlay) {
-                humanTrials++;
+                humanStatsByEnv[currentEnvironmentKey()].trials++;
             }
             break;
         case GAME:
@@ -138,7 +156,7 @@ function handleUserInteraction(event){
             startGame();
             gameState = GAME;
             if (!isAutoPlay) {
-                humanTrials++;
+                humanStatsByEnv[currentEnvironmentKey()].trials++;
             }
             break;
         case HI_SCORE:
@@ -160,14 +178,16 @@ function renderHome(){
     renderToScale();
 }
 
-function renderGame(){
+function renderGame(advanceState){
     renderContext.clearRect(0,0,32,32);
     collisionContext.clearRect(0,0,collisionCanvas.width, collisionCanvas.height);
     renderScore(score, renderScoreXGame, 1);
-    renderGround(true);
-    renderTubes();
-    updateBirdGame();
-    checkCollision();
+    renderGround(advanceState);
+    renderTubes(advanceState);
+    updateBirdGame(advanceState);
+    if (advanceState) {
+        checkCollision();
+    }
     if (displayTarget) {
         var targetMarkerTube = tubes[activeTube];
         if (!targetMarkerTube.targetReached) {
@@ -218,9 +238,12 @@ function checkCollision(){
                 hiScore = score + 0;
             }
             if (isAutoPlay) {
-                aiHighScore = Math.max(aiHighScore, score);
+                var aiStats = aiStatsByEnv[currentEnvironmentKey()];
+                aiStats.highScore = Math.max(aiStats.highScore, score);
+                aiStats.trials++;
             } else {
-                humanHighScores[humanDifficulty] = Math.max(humanHighScores[humanDifficulty], score);
+                var humanStats = humanStatsByEnv[currentEnvironmentKey()];
+                humanStats.highScores[humanDifficulty] = Math.max(humanStats.highScores[humanDifficulty], score);
             }
             episodeScoreHistory.push(score);
             if (episodeScoreHistory.length > 200) {
@@ -268,17 +291,19 @@ function updateBirdHome(){
     birdFrame %= 3;
 }
 
-function updateBirdGame(){
-    birdY = Math.round(birdY + birdYSpeed);
-    // Gravity for the environment
-    birdYSpeed += .25;
-    if(birdY < 0){
-        birdY = 0;
-        birdYSpeed = 0;
-    }
-    if(birdY + 5 > bgLoc.height){
-        birdY = 28;
-        birdYSpeed = 0;
+function updateBirdGame(advanceState){
+    if (advanceState) {
+        birdY = Math.round(birdY + birdYSpeed);
+        // Gravity for the environment
+        birdYSpeed += .25;
+        if(birdY < 0){
+            birdY = 0;
+            birdYSpeed = 0;
+        }
+        if(birdY + 5 > bgLoc.height){
+            birdY = 28;
+            birdYSpeed = 0;
+        }
     }
     renderContext.save();
     collisionContext.save();
@@ -290,17 +315,21 @@ function updateBirdGame(){
     collisionContext.restore();
     birdFrame++;
     birdFrame %= 3;
-    markTargetReached();
+    if (advanceState) {
+        markTargetReached();
+    }
 }
 
-function renderTubes(){
+function renderTubes(advanceState){
     var i, tube;
     activeTube = tubes[0].x < tubes[1].x ? 0 : 1;
     for(i= 0; i < 2;i++){
         tube = tubes[i];
-        if(--tube.x <= -6 ){
-            tube.x = 32;
-            setTubeY(tube);
+        if (advanceState) {
+            if(--tube.x <= -6 ){
+                tube.x = 32;
+                setTubeY(tube);
+            }
         }
         drawSpriteSheetImage(renderContext, tubeLoc, tube.x, tube.y );
         drawSpriteSheetImage(collisionContext, tubeLoc, tube.x, tube.y );
@@ -341,6 +370,9 @@ function updateCanvasLayout(contentPanel) {
 }
 
 function updateDashboard() {
+    var envKey = currentEnvironmentKey();
+    var humanStats = humanStatsByEnv[envKey];
+    var aiStats = aiStatsByEnv[envKey];
     var humanScoreElement = document.getElementById("human-score");
     var humanScoreEasyElement = document.getElementById("human-score-easy");
     var humanScoreMediumElement = document.getElementById("human-score-medium");
@@ -352,13 +384,13 @@ function updateDashboard() {
     var humanModeCard = document.getElementById("modeHumanCard");
     var aiModeCard = document.getElementById("modeQLearningCard");
 
-    if (humanScoreElement) humanScoreElement.innerText = humanHighScores[humanDifficulty].toString();
-    if (humanScoreEasyElement) humanScoreEasyElement.innerText = humanHighScores.easy.toString();
-    if (humanScoreMediumElement) humanScoreMediumElement.innerText = humanHighScores.medium.toString();
-    if (humanScoreHardElement) humanScoreHardElement.innerText = humanHighScores.hard.toString();
-    if (aiScoreElement) aiScoreElement.innerText = aiHighScore.toString();
-    if (humanTrialsElement) humanTrialsElement.innerText = humanTrials.toString();
-    if (aiTrialsElement) aiTrialsElement.innerText = trials.toString();
+    if (humanScoreElement) humanScoreElement.innerText = humanStats.highScores[humanDifficulty].toString();
+    if (humanScoreEasyElement) humanScoreEasyElement.innerText = humanStats.highScores.easy.toString();
+    if (humanScoreMediumElement) humanScoreMediumElement.innerText = humanStats.highScores.medium.toString();
+    if (humanScoreHardElement) humanScoreHardElement.innerText = humanStats.highScores.hard.toString();
+    if (aiScoreElement) aiScoreElement.innerText = aiStats.highScore.toString();
+    if (humanTrialsElement) humanTrialsElement.innerText = humanStats.trials.toString();
+    if (aiTrialsElement) aiTrialsElement.innerText = aiStats.trials.toString();
     if (rulesElement) rulesElement.innerText = Object.keys(Q_table).length.toString();
 
     if (humanModeCard && aiModeCard) {
