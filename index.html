@@ -40,7 +40,7 @@
               <h2>Q-learning</h2>
               <div class="stat-row"><span>Trials</span><span id="ai-trials" class="number">0</span></div>
               <div class="stat-row"><span>High Score</span><span id="ai-score" class="number">0</span></div>
-              <div class="stat-row"><span>Rules Learnt</span><span id="rules" class="number">0</span></div>
+              <div class="stat-row"><span>Rules Learned</span><span id="rules" class="number">0</span></div>
             </article>
           </section>
 
@@ -81,6 +81,56 @@
           <div class="button-row"><input type="button" value="Load best pre-trained model" onclick="loadPreModel()"></div>
           <p class="hint">Human mode controls: click canvas / press key to jump. On game over, click or press any key to restart.</p>
         </form>
+      </div>
+
+      <div id="labcard">
+        <section class="lab-section">
+          <h2>Q-learning Lab</h2>
+          <div class="field-group">
+            <label for="alpha-range" class="label">Alpha</label>
+            <div class="field">
+              <input id="alpha-range" type="range" min="0.01" max="1" step="0.01" value="0.10" onchange="learningParamChange()">
+              <span id="alpha-value" class="number">0.10</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="gamma-range" class="label">Gamma</label>
+            <div class="field">
+              <input id="gamma-range" type="range" min="0.1" max="0.99" step="0.01" value="0.80" onchange="learningParamChange()">
+              <span id="gamma-value" class="number">0.80</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="epsilon-range" class="label">Epsilon</label>
+            <div class="field">
+              <input id="epsilon-range" type="range" min="0" max="0.3" step="0.005" value="0.02" onchange="learningParamChange()">
+              <span id="epsilon-value" class="number">0.020</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="tie-jump-range" class="label">Tie Jump P</label>
+            <div class="field">
+              <input id="tie-jump-range" type="range" min="0" max="1" step="0.01" value="0.25" onchange="learningParamChange()">
+              <span id="tie-jump-value" class="number">0.25</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="viz-speed-y" class="label">Viz speedY (v*100)</label>
+            <div class="field">
+              <input id="viz-speed-y" type="number" value="0" step="25" onchange="renderQTableVisualization()">
+            </div>
+          </div>
+          <p class="hint">Definition: speedY = round(vy * 100), where vy is bird vertical speed in px/frame. So -140 means vy=-1.40 px/frame (up), +50 means vy=+0.50 px/frame (down).</p>
+          <div class="viz-wrap">
+            <canvas id="qtable-canvas" width="300" height="180"></canvas>
+            <p id="qtable-legend" class="hint">Red means Q(Jump) is higher; Blue means Q(Stay) is higher. This is value preference (Q-value gap), not probability. X=tubeX, Y=diffY.</p>
+          </div>
+          <div class="viz-wrap">
+            <h3>Episode Reward / Score</h3>
+            <canvas id="reward-canvas" width="300" height="140"></canvas>
+            <p id="reward-legend" class="hint">Gray=line of raw episode score. Red=line of moving average.</p>
+          </div>
+        </section>
       </div>
     </div>
     <script src="js/index.js"></script>

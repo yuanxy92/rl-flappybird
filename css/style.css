@@ -24,15 +24,15 @@ html, body {
 }
 
 #wrapper {
-  max-width: 1240px;
+  max-width: 1800px;
   margin: 0 auto;
   padding: 24px;
   display: grid;
   gap: 20px;
-  grid-template-columns: 440px 1fr;
+  grid-template-columns: minmax(320px, 440px) minmax(460px, 1fr) minmax(420px, 1fr);
 }
 
-#content, #sidebar {
+#content, #sidebar, #labcard {
   background: var(--panel);
   border-radius: 18px;
   padding: 18px;
@@ -108,6 +108,49 @@ form {
   margin-bottom: 18px;
 }
 
+.lab-section {
+  margin-bottom: 0;
+  padding: 0;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.lab-section h2 {
+  margin-bottom: 10px;
+}
+
+.lab-section .field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.viz-wrap {
+  margin-top: 8px;
+}
+
+#qtable-canvas {
+  width: 100%;
+  height: auto;
+  border: 1px solid #c6d5e4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+#reward-canvas {
+  width: 100%;
+  height: auto;
+  border: 1px solid #c6d5e4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+h3 {
+  margin: 8px 0;
+  font-size: 1.4rem;
+}
+
 .stats-card {
   border-radius: 12px;
   padding: 12px;
@@ -181,13 +224,18 @@ input[type="button"] {
   color: var(--muted);
 }
 
+#labcard .hint {
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
 @media (max-width: 980px) {
   #wrapper {
     grid-template-columns: 1fr;
     padding: 14px;
   }
 
-  #content, #sidebar {
+  #content, #sidebar, #labcard {
     padding: 14px;
   }
 

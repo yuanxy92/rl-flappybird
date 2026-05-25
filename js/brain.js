@@ -51,6 +51,8 @@ var actionSet = {
  */
 var gamma = 0.8; // Discounted rewards
 var alpha = 0.1; // Learning rate
+var epsilon = 0.02; // Exploration probability
+var tieJumpProbability = 0.25; // Probability of jump when Q-values tie
 
 // Frame buffer for mainting the state-action pairs in the current episode
 var frameBuffer = [];
@@ -105,20 +107,9 @@ function setQ(state, action, reward) {
  * @param {*} state 
  */
 function getAction(state) {
-  // Why always follow the rules? Once in a while (1/100000), our flappy bird
-  // takes a random decision without looking up the Q-table to explore a new
-  // possibility. This is to help the flappy bird to not get stuck on a single
-  // path.
-  var takeRandomDecision = Math.ceil(Math.random() * 100000)%90001;
-  if (takeRandomDecision == 0) {
-    console.log("Going random baby!");
-    // 1 out of 4 times, it'll take a decision to jump
-    var shouldJump = ((Math.random() * 100 )%4 == 0);
-    if (shouldJump) {
-        return actionSet.JUMP;
-    } else {
-        return actionSet.STAY;
-    }
+  // Epsilon-greedy exploration: with probability epsilon, ignore Q and sample action.
+  if (Math.random() < epsilon) {
+    return Math.random() < 0.5 ? actionSet.JUMP : actionSet.STAY;
   }
   
   // Lookup the Q-table for rewards corresponding to Jump and Stay action for
@@ -138,7 +129,7 @@ function getAction(state) {
     // probability of jumping is lower as compared to stay to mimic the natural
     // scenario We press jump much less occasionally than we let the flappy bird
     // fall
-    var shouldJump = (Math.ceil( Math.random() * 100 )%25 == 0); 
+    var shouldJump = Math.random() < tieJumpProbability;
     if (shouldJump) {
         return actionSet.JUMP;
     } else {

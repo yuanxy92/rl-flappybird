@@ -54,6 +54,7 @@ var humanDifficulty = "medium";
 var humanHighScores = { easy: 0, medium: 0, hard: 0 };
 var aiHighScore = 0;
 var humanTrials = 0;
+var episodeScoreHistory = [];
 
 function initGame(){
     canvas = document.getElementById("gameCanvas");
@@ -77,6 +78,9 @@ function initGame(){
     }
     if (typeof syncModeControls === "function") {
         syncModeControls();
+    }
+    if (typeof syncLearningControlsFromModel === "function") {
+        syncLearningControlsFromModel();
     }
     updateDashboard();
     // Set the speed of the game
@@ -217,6 +221,10 @@ function checkCollision(){
                 aiHighScore = Math.max(aiHighScore, score);
             } else {
                 humanHighScores[humanDifficulty] = Math.max(humanHighScores[humanDifficulty], score);
+            }
+            episodeScoreHistory.push(score);
+            if (episodeScoreHistory.length > 200) {
+                episodeScoreHistory.shift();
             }
             if (isAutoPlay) {
                 triggerGameOver();
@@ -361,5 +369,12 @@ function updateDashboard() {
             humanModeCard.classList.add("active");
             aiModeCard.classList.remove("active");
         }
+    }
+
+    if (typeof renderQTableVisualization === "function") {
+        renderQTableVisualization(false);
+    }
+    if (typeof renderRewardChart === "function") {
+        renderRewardChart(false);
     }
 }
