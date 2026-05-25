@@ -6,22 +6,46 @@
 
 var isEnvironmentStatic = true;
 var displayTarget = false;
-var HUMAN_MODE_SPEED = 40;
+var HUMAN_DIFFICULTY_DELAYS = {
+    easy: 110,
+    medium: 70,
+    hard: 45
+};
+
+function applyGameDelay(delayMs) {
+    clearInterval(eventLoop);
+    eventLoop = setInterval(loop, delayMs);
+}
 
 function applyGameSpeed(speedValue) {
+    var delay = 100 - speedValue;
+    if (delay < 10) {
+        delay = 10;
+    }
+    if (delay > 200) {
+        delay = 200;
+    }
     clearInterval(eventLoop);
-    eventLoop = setInterval(loop, 100 - speedValue);
+    eventLoop = setInterval(loop, delay);
 }
 
 function gameSpeedChange(curSpeed) {
     if (!isAutoPlay) {
-        var humanSpeedSlider = document.getElementById("tel1");
-        if (humanSpeedSlider) {
-            humanSpeedSlider.value = HUMAN_MODE_SPEED;
-        }
+        syncModeControls();
         return;
     }
     applyGameSpeed(parseInt(curSpeed, 10));
+}
+
+function humanDifficultyChange(difficulty) {
+    if (!(difficulty in HUMAN_DIFFICULTY_DELAYS)) {
+        return;
+    }
+    humanDifficulty = difficulty;
+    if (!isAutoPlay) {
+        applyGameDelay(HUMAN_DIFFICULTY_DELAYS[humanDifficulty]);
+    }
+    updateDashboard();
 }
 
 function toggleDisplayTarget(showTarget) {
@@ -99,16 +123,24 @@ function playerModeChange(mode) {
 
 function syncModeControls() {
     var speedSlider = document.getElementById("tel1");
+    var difficultySelect = document.getElementById("human-difficulty");
     if (!speedSlider) {
         return;
     }
 
     if (isAutoPlay) {
         speedSlider.disabled = false;
+        if (difficultySelect) {
+            difficultySelect.disabled = true;
+        }
         applyGameSpeed(parseInt(speedSlider.value, 10));
     } else {
-        speedSlider.value = HUMAN_MODE_SPEED;
+        speedSlider.value = 100 - HUMAN_DIFFICULTY_DELAYS[humanDifficulty];
         speedSlider.disabled = true;
-        applyGameSpeed(HUMAN_MODE_SPEED);
+        if (difficultySelect) {
+            difficultySelect.disabled = false;
+            difficultySelect.value = humanDifficulty;
+        }
+        applyGameDelay(HUMAN_DIFFICULTY_DELAYS[humanDifficulty]);
     }
 }

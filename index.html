@@ -31,7 +31,10 @@
             <article class="stats-card human-card">
               <h2>Human</h2>
               <div class="stat-row"><span>Trials</span><span id="human-trials" class="number">0</span></div>
-              <div class="stat-row"><span>High Score</span><span id="human-score" class="number">0</span></div>
+              <div class="stat-row"><span>High Score (Current)</span><span id="human-score" class="number">0</span></div>
+              <div class="stat-row"><span>Easy High</span><span id="human-score-easy" class="number">0</span></div>
+              <div class="stat-row"><span>Medium High</span><span id="human-score-medium" class="number">0</span></div>
+              <div class="stat-row"><span>Hard High</span><span id="human-score-hard" class="number">0</span></div>
             </article>
             <article class="stats-card ai-card">
               <h2>Q-learning</h2>
@@ -45,6 +48,16 @@
             <label for="game-speed" class="label">Game speed</label>
             <div class="field">
               <input name="tel1" id="tel1" type="range" value="40" onchange="gameSpeedChange(this.value)">
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="human-difficulty" class="label">Human difficulty</label>
+            <div class="field">
+              <select id="human-difficulty" onchange="humanDifficultyChange(this.value)">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
             </div>
           </div>
           <div class="field-group">
@@ -65,7 +78,7 @@
           </div>
           <div class="button-row"><input type="button" value="Save model to local storage" onclick="saveModel()"></div>
           <div class="button-row"><input type="button" value="Load model from local storage" onclick="loadModel()"></div>
-          <div class="button-row"><input type="button" value="Load pre-trained model" onclick="loadPreModel()"></div>
+          <div class="button-row"><input type="button" value="Load best pre-trained model" onclick="loadPreModel()"></div>
           <p class="hint">Human mode controls: click canvas / press key to jump. On game over, click or press any key to restart.</p>
         </form>
       </div>

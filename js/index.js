@@ -50,7 +50,8 @@ function drawSpriteSheetImage(context, locRect, x, y){
 var canvas, context, gameState, score, groundX = 0, birdY, birdYSpeed, birdX = 5, birdFrame = 0, activeTube, tubes = [], collisionContext, scale, scoreLoc = {width:5, height:9}, hiScore = 0;
 var HOME = 0, GAME = 1, GAME_OVER = 2, HI_SCORE = 3;
 var isAutoPlay = false;
-var humanHighScore = 0;
+var humanDifficulty = "medium";
+var humanHighScores = { easy: 0, medium: 0, hard: 0 };
 var aiHighScore = 0;
 var humanTrials = 0;
 
@@ -85,7 +86,7 @@ function initGame(){
 function startGame(){
     gameState = HOME;
     birdYSpeed = score = 0;
-    birdY = 14;
+    birdY = 11;
     for(var i = 0; i < 2; i++){
         tubes[i] = {x : Math.round(48 + i * 19) };
         setTubeY(tubes[i]);
@@ -215,7 +216,7 @@ function checkCollision(){
             if (isAutoPlay) {
                 aiHighScore = Math.max(aiHighScore, score);
             } else {
-                humanHighScore = Math.max(humanHighScore, score);
+                humanHighScores[humanDifficulty] = Math.max(humanHighScores[humanDifficulty], score);
             }
             if (isAutoPlay) {
                 triggerGameOver();
@@ -333,6 +334,9 @@ function updateCanvasLayout(contentPanel) {
 
 function updateDashboard() {
     var humanScoreElement = document.getElementById("human-score");
+    var humanScoreEasyElement = document.getElementById("human-score-easy");
+    var humanScoreMediumElement = document.getElementById("human-score-medium");
+    var humanScoreHardElement = document.getElementById("human-score-hard");
     var aiScoreElement = document.getElementById("ai-score");
     var humanTrialsElement = document.getElementById("human-trials");
     var aiTrialsElement = document.getElementById("ai-trials");
@@ -340,7 +344,10 @@ function updateDashboard() {
     var humanModeCard = document.getElementById("modeHumanCard");
     var aiModeCard = document.getElementById("modeQLearningCard");
 
-    if (humanScoreElement) humanScoreElement.innerText = humanHighScore.toString();
+    if (humanScoreElement) humanScoreElement.innerText = humanHighScores[humanDifficulty].toString();
+    if (humanScoreEasyElement) humanScoreEasyElement.innerText = humanHighScores.easy.toString();
+    if (humanScoreMediumElement) humanScoreMediumElement.innerText = humanHighScores.medium.toString();
+    if (humanScoreHardElement) humanScoreHardElement.innerText = humanHighScores.hard.toString();
     if (aiScoreElement) aiScoreElement.innerText = aiHighScore.toString();
     if (humanTrialsElement) humanTrialsElement.innerText = humanTrials.toString();
     if (aiTrialsElement) aiTrialsElement.innerText = trials.toString();
