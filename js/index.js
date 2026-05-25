@@ -62,6 +62,7 @@ var aiStatsByEnv = {
     Random: { trials: 0, highScore: 0 }
 };
 var episodeScoreHistory = [];
+var episodeEnvironmentKey = "Static";
 
 function currentEnvironmentKey() {
     return isEnvironmentStatic ? "Static" : "Random";
@@ -103,6 +104,7 @@ function startGame(){
     birdYSpeed = score = 0;
     birdY = 11;
     autoPlayPixelAccumulator = 0;
+    episodeEnvironmentKey = currentEnvironmentKey();
     for(var i = 0; i < 2; i++){
         tubes[i] = {x : Math.round(48 + i * 19) };
         setTubeY(tubes[i]);
@@ -238,11 +240,11 @@ function checkCollision(){
                 hiScore = score + 0;
             }
             if (isAutoPlay) {
-                var aiStats = aiStatsByEnv[currentEnvironmentKey()];
+                var aiStats = aiStatsByEnv[episodeEnvironmentKey];
                 aiStats.highScore = Math.max(aiStats.highScore, score);
                 aiStats.trials++;
             } else {
-                var humanStats = humanStatsByEnv[currentEnvironmentKey()];
+                var humanStats = humanStatsByEnv[episodeEnvironmentKey];
                 humanStats.highScores[humanDifficulty] = Math.max(humanStats.highScores[humanDifficulty], score);
             }
             episodeScoreHistory.push(score);
