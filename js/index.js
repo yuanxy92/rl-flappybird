@@ -94,6 +94,9 @@ function initGame(){
     if (typeof syncLearningControlsFromModel === "function") {
         syncLearningControlsFromModel();
     }
+    if (typeof updateVisitorCount === "function") {
+        updateVisitorCount();
+    }
     updateDashboard();
     // Set the speed of the game
     eventLoop = setInterval(loop, 40);
