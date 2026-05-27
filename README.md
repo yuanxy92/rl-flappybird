@@ -17,15 +17,16 @@ Live Q-Table Visualization: Includes a real-time heatmap dynamically rendering t
 
 Reward & Score Tracking: A live charting widget plots the raw episode scores and a moving average, making the agent's convergence and learning progress clearly visible.
 
+We gratefully acknowledge the original work by Nilesh Sah’s repository nileshsah/reinforcement-learning-flappybird (https://github.com/nileshsah/reinforcement-learning-flappybird), which served as the core foundation for this enhanced interactive Q-learning lab.
+
 ---
 
 A project aimed to explain reinforcement learning in the most simplistic way ever possible by training a _32px by 32px_ game of flappy bird using Q-learning through a script written purely in JavaScript.
 
 The script [`js/brain.js`](js/brain.js) is where the learning logic resides and has been documented heavily to explain the baseline Q-learning algorithm from scratch and how it can be applied in a real-time scenario.
 
-With everything written solely in JS, the game can be trained and tested right inside our browser with no external dependencies at all. You can witness how the bird learns to play the game in real-time by visiting the link:  [`http://nileshsah.github.io/reinforcement-learning-flappybird/`](http://nileshsah.github.io/reinforcement-learning-flappybird/) ¯\\_(ツ)_/¯
+With everything written solely in JS, the game can be trained and tested right inside our browser with no external dependencies at all. 
 
-In an ideal scenario, the bird learns to operate upon a static non-volatile environment in mere 25 trials of the game while for a randomized environment it might take up to 1000+ trials.
 
 ### Further Reading
 ---
