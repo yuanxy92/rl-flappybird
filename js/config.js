@@ -137,27 +137,6 @@ function loadPreModel() {
     });
 }
 
-function updateVisitorCount() {
-    var visitsElement = document.getElementById("visits");
-    if (!visitsElement) {
-        return;
-    }
-    var namespace = "rl-flappybird-demo";
-    var key = "page-views";
-    fetch("https://api.countapi.xyz/hit/" + namespace + "/" + key)
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data && typeof data.value !== "undefined") {
-                visitsElement.innerText = data.value.toString();
-            } else {
-                visitsElement.innerText = "N/A";
-            }
-        })
-        .catch(function() {
-            visitsElement.innerText = "N/A";
-        });
-}
-
 function playerModeChange(mode) {
     isAutoPlay = (mode == "QLearning");
     frameBuffer = [];
